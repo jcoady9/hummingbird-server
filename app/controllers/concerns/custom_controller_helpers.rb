@@ -17,6 +17,12 @@ module CustomControllerHelpers
     }
   end
 
+  def serialize_model(model)
+    resource = BaseResource.resource_for_model(model)
+    serializer = JSONAPI::ResourceSerializer.new(resource)
+    serializer.serialize_to_hash(resource.new(model, context))
+  end
+
   def policy_for(model)
     Pundit.policy!(current_user, model)
   end
@@ -39,8 +45,6 @@ module CustomControllerHelpers
   end
 
   def authenticate_user!
-    unless user
-      render_jsonapi serialize_error(403, 'Must be logged in'), status: 403
-    end
+    render_jsonapi serialize_error(403, 'Must be logged in'), status: 403 unless user
   end
 end
